@@ -1,0 +1,49 @@
+import gi
+gi.require_version('Gtk', '4.0')
+from gi.repository import Gtk
+
+class GalleryWindow(Gtk.ApplicationWindow):
+    def __init__(self, app):
+        super().__init__(title="Gallery", application=app)
+        self.set_default_size(600, 400)
+
+        # Create a grid to organize widgets
+        grid = Gtk.Grid()
+        self.set_child(grid)
+
+        # Create a file chooser button to select an image
+        file_button = Gtk.FileChooserButton()
+        file_button.set_title("Select an Image")
+        file_button.set_filter(self.create_filter())
+        file_button.connect("file-set", self.on_file_set)
+        grid.attach(file_button, 0, 0, 1, 1)
+
+        # Create an image widget to display the selected image
+        self.image = Gtk.Image()
+        grid.attach(self.image, 0, 1, 1, 1)
+
+    def create_filter(self):
+        # Create a filter for the file chooser to only show image files
+        filter = Gtk.FileFilter()
+        filter.set_name("Image files")
+        filter.add_mime_type("image/png")
+        filter.add_mime_type("image/jpeg")
+        filter.add_pattern("*.png")
+        filter.add_pattern("*.jpg")
+        return filter
+
+    def on_file_set(self, button):
+        # Set the image widget to display the selected image
+        file = button.get_file()
+        self.image.set_from_file(file.get_path())
+
+class GalleryApplication(Gtk.Application):
+    def __init__(self):
+        super().__init__()
+
+    def do_activate(self):
+        win = GalleryWindow(self)
+        win.present()
+
+app = GalleryApplication()
+app.run()
